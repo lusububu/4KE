@@ -1,12 +1,11 @@
-name: Build VST3 (Windows)
+name: Build 4000 E Console (Windows)
 
-# Runs on GitHub's own Windows machines, not yours, so your machine never has to compile
-# anything. Trigger it either by pushing to the repo, or manually from the Actions tab
-# ("Run workflow" button) without needing to push at all.
+# Runs on GitHub's own Windows machines, so nothing compiles on your computer.
+# Starts on every push that touches the plugin, or by hand from the Actions tab ("Run workflow").
 on:
   push:
     paths:
-      - "tape-machine-vst3/**"
+      - "console-4000e/**"
       - ".github/workflows/build-windows.yml"
   workflow_dispatch: {}
 
@@ -15,7 +14,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: tape-machine-vst3
+        working-directory: console-4000e
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -26,19 +25,19 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: tape-machine-vst3
+          workspaces: console-4000e
 
       - name: Install the nih-plug bundler
         run: cargo install --git https://github.com/robbert-vdh/nih-plug.git cargo-nih-plug
 
-      - name: Run the parity tests (same checks run locally)
+      - name: Run the circuit parity tests
         run: cargo test --release
 
       - name: Build and bundle the plugin
-        run: cargo nih-plug bundle tape-machine-vst3 --release
+        run: cargo nih-plug bundle console-4000e --release
 
       - name: Upload the built VST3/CLAP
         uses: actions/upload-artifact@v4
         with:
-          name: tape-machine-vst3-windows
-          path: tape-machine-vst3/target/bundled/
+          name: console-4000e-windows
+          path: console-4000e/target/bundled/
